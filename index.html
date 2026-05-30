@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <style>
+
+    body {
+      margin: 0;
+    }
+
+    .separator {
+      width: 100%;
+      height: 100px;
+    }
+
+    iframe {
+      width: 100vw;
+      min-width: 1000px;
+      height: 100vh;
+      border: none;
+      display: block;
+      margin: 0px;
+    }
+
+    .stickyOuter {
+      height: 500vh;
+    }
+
+    .sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+  </style>
+</head>
+
+<body>
+
+  <iframe src="chart1.html"></iframe>
+
+  <div class="separator"></div>
+
+  <div class="stickyOuter">
+    <div class="sticky">
+      <iframe src="chart2.html"></iframe>
+    </div>
+  </div>
+
+  <div class="separator"></div>
+
+  <iframe src="chart3.html"></iframe>
+
+  <script>
+    const s = document.querySelector('.stickyOuter');
+    const chart2 = document.querySelector('iframe[src="chart2.html"]');
+    window.addEventListener('scroll', () => {
+      const r = s.getBoundingClientRect();
+      const progress = Math.max(0, Math.min(1, -r.top / (r.height - innerHeight)));
+      chart2.contentWindow.postMessage({ progress }, '*');
+    }, { passive: true });
+
+    window.addEventListener('message', e => {
+      if (e.data.scrollTo === undefined) return;
+      const r = s.getBoundingClientRect();
+      const scrollable = r.height - innerHeight;
+      const target = s.offsetTop + e.data.scrollTo * scrollable;
+      window.scrollTo({ top: target });
+    });
+  </script>
+</body>
+
+</html>

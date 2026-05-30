@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      background: #2f2b2a;
+    }
+
+    body {
+      display: flex;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding-top: 50px;
+      padding-left: 80px;
+      padding-right: 100px;
+      padding-bottom: 20px;
+
+    }
+
+    .sidebar {
+      width: 300px;
+      padding-top: 70px;
+      padding-left: 50px;
+      padding-right: 2px;
+      overflow-y: auto;
+
+      border: 0px solid gray;
+    }
+
+    .sidebarButton {
+      width: 100%;
+      height: 50px;
+      background: rgb(84, 91, 72);
+      color: rgb(241, 236, 218);
+      font-family: "Helvetica";
+      font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      border: none;
+    }
+
+    .legend {
+      width: 100%;
+      height: fit-content;
+      background: rgb(84, 91, 72);
+      color: white;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    .legendTitle {
+      font-family: "Helvetica";
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: rgb(241, 236, 218);
+      padding-left: 5px;
+      padding-top: 5px;
+    }
+
+    .legendItem {
+      width: 100%;
+      height: 30px;
+      margin-bottom: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgb(241, 236, 218);
+      font-family: "Helvetica";
+    }
+
+    .legendColor {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .caption {
+      width: 100%;
+      height: fit-content;
+      color: rgb(241, 236, 218);
+      font-family: "Helvetica";
+      font-size: 30px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 0px solid gray;
+      padding-top: 10px;
+    }
+
+    .subcaption {
+      width: 100%;
+      height: fit-content;
+      min-height: 80px;
+      color: rgb(241, 236, 218);
+      font-family: "Helvetica";
+      font-size: 18px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 0px solid gray;
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+
+    .map {
+      flex: 1;
+      width: 100%;
+      min-height: 0;
+      object-fit: contain;
+      border: 0px solid gray;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sidebar">
+    <button class="sidebarButton">Plastic consumption</button>
+    <button class="sidebarButton">Plastic trade</button>
+    <button class="sidebarButton">Mismanaged plastics</button>
+    <div class="legend">
+      <div class="legendTitle">Legend</div>
+      <div class="legendItem">
+        <div class="legendColor" style="background:#e63946"></div>Item 1
+      </div>
+      <div class="legendItem">
+        <div class="legendColor" style="background:#457b9d"></div>Item 2
+      </div>
+    </div>
+  </div>
+  <div class="main">
+    <div class="caption">Plastic consumption Plastic consumption Plastic consumption</div>
+    <div class="subcaption">Subcaption text goes here</div>
+    <!-- source: https://mapsvg.com/maps/world -->
+    <img src="resources2/world.svg" class="map">
+  </div>
+  <script>
+    const captions = [
+      'Rich countries consume far more plastic than poorer ones.', 
+      'Rich countries export much of their plastic waste to poorer ones.', 
+      'Poorer countries lack the infrastructure to manage plastic waste.'
+    ];
+    const subcaptions = [
+      'Plastic consumption per capita. This includes ...',
+      'Plastic waste trade balance per capita. Positive values indicate that a country exports more waste than it imports.',
+      'Share of mismanaged plastic waste. Properly managed waste refers to waste that is recycled, incinerated or stored in a sealed landfill. Mismanaged waste ends up as litter, in the ocean, or in an open landfill where it can leak into the environment.'
+    ];
+    const caption = document.querySelector('.caption');
+    const subcaption = document.querySelector('.subcaption');
+    const buttons = document.querySelectorAll('.sidebarButton');
+
+    function setActive(i) {
+      buttons.forEach((b, j) => b.style.outline = j === i ? '2px solid white' : 'none');
+      caption.textContent = captions[i];
+      subcaption.textContent = subcaptions[i];
+    }
+    setActive(0);
+
+    window.addEventListener('message', e => {
+      if (e.data.progress === undefined) return;
+      const i = Math.min(2, Math.floor(e.data.progress * 3 + 0.01));
+      setActive(i);
+    });
+
+    buttons.forEach((btn, i) => {
+      btn.addEventListener('click', () => {
+        window.parent.postMessage({ scrollTo: i / 3 }, '*');
+      });
+    });
+  </script>
+</body>
+
+</html>
