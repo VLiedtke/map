@@ -1,0 +1,16 @@
+Plastic waste per capita (kg/person/day, 2010)
+----------------------------------------------
+  Advanced economies: 0.2578  (pop-weighted, n=33 countries, total pop 1033.6M)
+  Developing economies: 0.0899  (pop-weighted, n=125 countries, total pop 5958.2M)
+    [skipped — no pop data: ['AI']]
+
+Mismanaged waste per capita (kg/person, 2019)
+---------------------------------------------
+  Advanced economies: 0.5705  (pop-weighted, n=33 countries, total pop 1038.4M)
+  Developing economies: 9.9682  (pop-weighted, n=116 countries, total pop 6000.4M)
+
+Trade balance per capita (kg/person, 2017)
+------------------------------------------
+  Advanced economies: 4.2556  (pop-weighted, n=37 countries, total pop 1066.8M)
+  Developing economies: -0.9330  (pop-weighted, n=108 countries, total pop 5978.2M)
+

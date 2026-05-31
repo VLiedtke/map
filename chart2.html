@@ -39,13 +39,16 @@
     .sidebarButton {
       width: 100%;
       height: 50px;
-      background: rgb(84, 91, 72);
+      background: rgb(67, 70, 61);
       color: rgb(241, 236, 218);
       font-family: "Helvetica";
       font-size: 16px;
       cursor: pointer;
       margin-bottom: 20px;
       border: none;
+    }
+    .sidebarButton:hover {
+      background: rgb(105, 111, 95);
     }
 
     .legend {
@@ -55,6 +58,7 @@
       color: white;
       padding: 10px;
       box-sizing: border-box;
+      margin-bottom: 20px;
     }
 
     .legendTitle {
@@ -115,6 +119,26 @@
       background: rgb(84, 84, 84);
       flex-shrink: 0;
       border: 1px solid rgb(184, 179, 162);
+    }
+
+    .filterItem {
+      color: rgb(241, 236, 218);
+      font-family: "Helvetica";
+      padding: 6px;
+      cursor: pointer;
+      background: rgb(67, 70, 61);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .filterCaption {
+      font-size: 12px;
+      color: rgb(241, 236, 218);
+    }
+
+    .filterItem:hover {
+      background: rgb(105, 111, 95);
     }
 
     .caption {
@@ -180,6 +204,11 @@
         <div class="legendNoDataColor"></div>No data
       </div>
     </div>
+    <div class="legend">
+      <div class="legendTitle">IMF Ranking</div>
+      <div class="filterItem" data-filter="advanced">Advanced Economies<span class="filterCaption"><style></style> </span></div>
+      <div class="filterItem" data-filter="developing">Developing Economies<span class="filterCaption"></span></div>
+    </div>
   </div>
   <div class="main">
     <div class="caption">Plastic consumption Plastic consumption Plastic consumption</div>
@@ -187,16 +216,27 @@
     <div id="map" class="map"></div>
   </div>
   <script type="module">
+    import { ADVANCED_ECONOMIES } from './resources2/advanced_economies.js';
     const captions = [
-      'Rich countries consume far more plastic than poorer ones.', 
-      'Rich countries export much of their plastic waste to poorer ones.', 
+      'Rich countries consume far more plastic than poorer ones.',
+      'Rich countries export much of their plastic waste to poorer ones.',
       'Poorer countries lack the infrastructure to manage plastic waste.'
     ];
     const subcaptions = [
       'Plastic waste production per capita (2010). ',
       'Plastic waste trade balance per capita (2017). Positive values indicate that a country exports more waste than it imports.',
-      'Amount of mismanaged plastic waste (2019). Properly managed waste refers to waste that is recycled, incinerated or stored in a sealed landfill. Mismanaged waste ends up as litter, in the ocean, or in an open landfill where it can leak into the environment.'
+      'Amount of mismanaged plastic waste (2019). Properly managed waste refers to waste that is recycled, incinerated or stored in a sealed landfill. Mismanaged waste ends up as litter, in the ocean, or in an open landfill where it can leak into the environment, amongst others.'
     ];
+    const advancedCaptions = [
+      'avg. 0.26 kg/day',
+      'avg. 4.3 kg/year',
+      'avg. 0.57 kg/year'
+    ]
+    const developingCaptions = [
+      'avg. 0.09 kg/day',
+      'avg. -0.93 kg/year',
+      'avg. 10 kg/year'
+    ]
     const caption = document.querySelector('.caption');
     const subcaption = document.querySelector('.subcaption');
     const buttons = document.querySelectorAll('.sidebarButton');
@@ -210,7 +250,7 @@
     const mapSvgString = await mapSvg.text();
 
     const mapSvgElement = new DOMParser().parseFromString(mapSvgString, 'image/svg+xml').documentElement;
-    
+
     mapSvgElement.querySelectorAll('path').forEach(path => {
       path.style.fill = 'rgb(241, 236, 218)';
       path.style.stroke = '#2f2b2a';
@@ -241,20 +281,28 @@
       ['oklab(0.1 0.434 0.249)', 'oklab(0.95 0 0)', 'oklab(0.1 -0.107 -0.488)'],
       ['oklab(0.95 0 0)', 'oklab(0.525 0.217 0.124)', 'oklab(0.1 0.434 0.249)']
     ];
-  
+
     const pal = [
       [-0.213561, -0.97693],
       [0.867764, 0.496977]
     ]
 
+    let currentColor = 0;
 
-    function applyColors(i) {
+
+    function applyColors(i, filter = null) {
       const data = datas[i];
       const svgEl = map.querySelector('svg');
 
       svgEl.querySelectorAll('path[id]').forEach(path => {
-      const val = data[path.id];
-        if (val === undefined) {
+        const iso2 = path.id;
+        const isAdvanced = ADVANCED_ECONOMIES.has(iso2);
+        const greyed =
+          (filter === 'advanced' && !isAdvanced) ||
+          (filter === 'developing' && isAdvanced);
+
+        const val = data[iso2];
+        if (val === undefined || greyed) {
           path.style.fill = 'rgb(84, 84, 84)';
         } else {
           let normVal = 0.5 * val / maxs[i];
@@ -272,8 +320,10 @@
             }
           }
           path.style.fill = `oklab(${0.95 - normVal * 1.7} ${pal[id][0] * normVal} ${pal[id][1] * normVal})`;
-          }
+        }
       });
+
+      currentColor = i;
     }
 
     function updateLegend(i) {
@@ -288,6 +338,8 @@
       buttons.forEach((b, j) => b.style.outline = j === i ? '2px solid white' : 'none');
       caption.textContent = captions[i];
       subcaption.textContent = subcaptions[i];
+      document.querySelector('[data-filter="advanced"] .filterCaption').textContent = advancedCaptions[i];
+      document.querySelector('[data-filter="developing"] .filterCaption').textContent = developingCaptions[i];
       updateLegend(i);
       applyColors(i);
     }
@@ -296,12 +348,21 @@
       if (e.data.progress === undefined) return;
       const i = Math.min(2, Math.floor(e.data.progress * 3 + 0.01));
       setActive(i);
-      
+
     });
 
     buttons.forEach((btn, i) => {
       btn.addEventListener('click', () => {
         window.parent.postMessage({ scrollTo: i / 3 }, '*');
+      });
+    });
+
+    document.querySelectorAll('.filterItem').forEach(item => {
+      item.addEventListener('mouseenter', () => {
+        applyColors(currentColor, item.dataset.filter);
+      });
+      item.addEventListener('mouseleave', () => {
+        applyColors(currentColor, null);
       });
     });
   </script>
