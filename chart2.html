@@ -24,7 +24,6 @@
       padding-left: 80px;
       padding-right: 100px;
       padding-bottom: 20px;
-
     }
 
     .sidebar {
@@ -85,6 +84,39 @@
       flex-shrink: 0;
     }
 
+    .legendGradientBar {
+      width: 100%;
+      height: 14px;
+      margin-bottom: 6px;
+    }
+
+    .legendLabels {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      font-family: "Helvetica";
+      font-size: 12px;
+      color: rgb(241, 236, 218);
+      margin-bottom: 16px;
+    }
+
+    .legendNoData {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgb(241, 236, 218);
+      font-family: "Helvetica";
+      font-size: 12px;
+    }
+
+    .legendNoDataColor {
+      width: 14px;
+      height: 14px;
+      background: rgb(84, 84, 84);
+      flex-shrink: 0;
+      border: 1px solid rgb(184, 179, 162);
+    }
+
     .caption {
       width: 100%;
       height: fit-content;
@@ -119,59 +151,152 @@
       flex: 1;
       width: 100%;
       min-height: 0;
-      object-fit: contain;
       border: 0px solid gray;
+    }
+
+    .map svg,
+    .mapImage {
+      width: 100%;
+      height: fit-content;
+      display: block;
     }
   </style>
 </head>
 
 <body>
   <div class="sidebar">
-    <button class="sidebarButton">Plastic consumption</button>
+    <button class="sidebarButton">Plastic waste</button>
     <button class="sidebarButton">Plastic trade</button>
     <button class="sidebarButton">Mismanaged plastics</button>
     <div class="legend">
       <div class="legendTitle">Legend</div>
-      <div class="legendItem">
-        <div class="legendColor" style="background:#e63946"></div>Item 1
+      <div class="legendGradientBar"></div>
+      <div class="legendLabels">
+        <span class="legendLabelMin"></span>
+        <span class="legendLabelMid"></span>
+        <span class="legendLabelMax"></span>
       </div>
-      <div class="legendItem">
-        <div class="legendColor" style="background:#457b9d"></div>Item 2
+      <div class="legendNoData">
+        <div class="legendNoDataColor"></div>No data
       </div>
     </div>
   </div>
   <div class="main">
     <div class="caption">Plastic consumption Plastic consumption Plastic consumption</div>
     <div class="subcaption">Subcaption text goes here</div>
-    <!-- source: https://mapsvg.com/maps/world -->
-    <img src="resources2/world.svg" class="map">
+    <div id="map" class="map"></div>
   </div>
-  <script>
+  <script type="module">
     const captions = [
       'Rich countries consume far more plastic than poorer ones.', 
       'Rich countries export much of their plastic waste to poorer ones.', 
       'Poorer countries lack the infrastructure to manage plastic waste.'
     ];
     const subcaptions = [
-      'Plastic consumption per capita. This includes ...',
-      'Plastic waste trade balance per capita. Positive values indicate that a country exports more waste than it imports.',
-      'Share of mismanaged plastic waste. Properly managed waste refers to waste that is recycled, incinerated or stored in a sealed landfill. Mismanaged waste ends up as litter, in the ocean, or in an open landfill where it can leak into the environment.'
+      'Plastic waste production per capita (2010). ',
+      'Plastic waste trade balance per capita (2017). Positive values indicate that a country exports more waste than it imports.',
+      'Amount of mismanaged plastic waste (2019). Properly managed waste refers to waste that is recycled, incinerated or stored in a sealed landfill. Mismanaged waste ends up as litter, in the ocean, or in an open landfill where it can leak into the environment.'
     ];
     const caption = document.querySelector('.caption');
     const subcaption = document.querySelector('.subcaption');
     const buttons = document.querySelectorAll('.sidebarButton');
+    const map = document.querySelector('#map');
+    const legendGradientBar = document.querySelector('.legendGradientBar');
+    const legendLabelMin = document.querySelector('.legendLabelMin');
+    const legendLabelMid = document.querySelector('.legendLabelMid');
+    const legendLabelMax = document.querySelector('.legendLabelMax');
+
+    const mapSvg = await fetch('resources2/world.svg')
+    const mapSvgString = await mapSvg.text();
+
+    const mapSvgElement = new DOMParser().parseFromString(mapSvgString, 'image/svg+xml').documentElement;
+    
+    mapSvgElement.querySelectorAll('path').forEach(path => {
+      path.style.fill = 'rgb(241, 236, 218)';
+      path.style.stroke = '#2f2b2a';
+      path.style.strokeWidth = '0.5';
+    });
+    mapSvgElement.removeAttribute('width');
+    mapSvgElement.removeAttribute('height');
+    mapSvgElement.setAttribute('viewBox', '0 0 1010 655');
+    map.appendChild(document.importNode(mapSvgElement, true));
+
+    const p1 = await fetch('resources2/processed/plastic_waste_per_capita.json')
+    const p2 = await fetch('resources2/processed/plastic_trade_balance_per_capita.json')
+    const p3 = await fetch('resources2/processed/mismanaged_waste_per_capita.json')
+    const data1 = await p1.json();
+    const data2 = await p2.json();
+    const data3 = await p3.json();
+    const datas = [data1, data2, data3];
+
+    const maxs = [1, 25, 80];
+
+    const gradientLabels = [
+      ['0 kg/day', '0.5 kg/day', '1 kg/day'],
+      ['-25 kg/year', '0 kg/year', '25 kg/year'],
+      ['0 kg/year', '40 kg/year', '80 kg/year']
+    ];
+    const gradientColors = [
+      ['oklab(0.95 0 0)', 'oklab(0.525 -0.053 -0.244)', 'oklab(0.1 -0.107 -0.488)'],
+      ['oklab(0.1 0.434 0.249)', 'oklab(0.95 0 0)', 'oklab(0.1 -0.107 -0.488)'],
+      ['oklab(0.95 0 0)', 'oklab(0.525 0.217 0.124)', 'oklab(0.1 0.434 0.249)']
+    ];
+  
+    const pal = [
+      [-0.213561, -0.97693],
+      [0.867764, 0.496977]
+    ]
+
+
+    function applyColors(i) {
+      const data = datas[i];
+      const svgEl = map.querySelector('svg');
+
+      svgEl.querySelectorAll('path[id]').forEach(path => {
+      const val = data[path.id];
+        if (val === undefined) {
+          path.style.fill = 'rgb(84, 84, 84)';
+        } else {
+          let normVal = 0.5 * val / maxs[i];
+          let id;
+          if (i == 0) {
+            id = 0;
+          } else if (i == 2) {
+            id = 1;
+          } else {
+            if (normVal < 0) {
+              id = 1;
+              normVal = -normVal;
+            } else {
+              id = 0;
+            }
+          }
+          path.style.fill = `oklab(${0.95 - normVal * 1.7} ${pal[id][0] * normVal} ${pal[id][1] * normVal})`;
+          }
+      });
+    }
+
+    function updateLegend(i) {
+      const [c0, c1, c2] = gradientColors[i];
+      legendGradientBar.style.background = `linear-gradient(to right, ${c0}, ${c1}, ${c2})`;
+      legendLabelMin.textContent = gradientLabels[i][0];
+      legendLabelMid.textContent = gradientLabels[i][1];
+      legendLabelMax.textContent = gradientLabels[i][2];
+    }
 
     function setActive(i) {
       buttons.forEach((b, j) => b.style.outline = j === i ? '2px solid white' : 'none');
       caption.textContent = captions[i];
       subcaption.textContent = subcaptions[i];
+      updateLegend(i);
+      applyColors(i);
     }
-    setActive(0);
 
     window.addEventListener('message', e => {
       if (e.data.progress === undefined) return;
       const i = Math.min(2, Math.floor(e.data.progress * 3 + 0.01));
       setActive(i);
+      
     });
 
     buttons.forEach((btn, i) => {
