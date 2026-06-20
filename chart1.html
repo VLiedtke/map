@@ -2,17 +2,237 @@
 <html>
 
 <head>
-    <meta charset="UTF-8">
-    <style>
-        body {
-            width: 100%;
-            height: 100%;
-            background: cyan;
-            margin: 0; overflow: hidden;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      width: 100%;
+      height: 100%;
+      background: #e6fffebf;
+      margin: 0;
+      overflow: hidden;
+      justify-content: center;
+      font-family: "Helvetica";
+    }
+
+    .chart {
+      display: flex;
+      height: 75vh;
+      justify-content: center;
+    }
+
+    .content {
+      margin: 20px;
+    }
+
+    .axis path,
+    .axis line {
+      stroke: #000000;
+      shape-rendering: crispEdges;
+    }
+
+    .grid line {
+      stroke: #bfbfbfbf;
+    }
+
+    .line {
+      fill: none;
+      stroke: #eb255d;
+      stroke-width: 2;
+    }
+
+    .dot {
+      fill: #eb255d;
+    }
+
+    .label {
+      font-size: 12px;
+      fill: #555;
+    }
+
+    .header {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
 </head>
 
-<body></body>
+<body>
+  <div class="content">
+    <div class="header">
+      <h2>Our planet is drowning in plastic</h2>
+      <h3>Global plastic production has risen dramatically over the last century.</p>
+    </div>
+    <div class="chart">
+      <svg viewBox="0 0 860 520" preserveAspectRatio="xMidYMid meet" aria-label="Plastic production line chart"></svg>
+    </div>
+</div>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script>
+    (async function () {
+      const DATA_URL = "resources1/global-plastics-production.csv"; // Replace with your CSV URL or path
+
+
+      const svg = d3.select("svg");
+      const width = 860, height = 520;
+      const margin = { top: 30, right: 28, bottom: 56, left: 72 };
+      const innerW = width - margin.left - margin.right;
+      const innerH = height - margin.top - margin.bottom;
+      const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+      const parseYear = d3.timeParse("%Y");
+      const formatYear = d3.timeFormat("%Y");
+
+      // Try to load from custom data source, fallback to inline sample
+      let raw;
+      try {
+        raw = await d3.csv(DATA_URL, d => { return { year: d.Year, plastic: d.Plastic / 1_000_000 } });
+      } catch (err) {
+        console.warn("Failed to load custom CSV.", err);
+      }
+
+      // Clean & sort data
+      const data = raw
+        .map(d => ({
+          date: parseYear(String(d.year).trim()),
+          mt: +d.plastic
+        }))
+        .filter(d => d.date && Number.isFinite(d.mt))
+        .sort((a, b) => d3.ascending(a.date, b.date));
+
+      if (!data.length) {
+        g.append("text").attr("x", innerW / 2).attr("y", innerH / 2)
+          .attr("text-anchor", "middle").text("No valid data").attr("fill", "#666");
+        return;
+      }
+
+      // Scales
+      const x = d3.scaleTime()
+        .domain(d3.extent(data, d => d.date))
+        .range([0, innerW]);
+
+      const y = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.mt)]).nice()
+        .range([innerH, 0]);
+
+      // Axes
+      const xAxis = d3.axisBottom(x)
+        .ticks(Math.min(10, data.length))
+        .tickFormat(formatYear);
+
+      const yAxis = d3.axisLeft(y)
+        .ticks(8)
+        .tickFormat(d => `${d} Mt`);
+
+      // Gridlines
+      g.append("g")
+        .attr("class", "grid")
+        .attr("transform", `translate(0,${innerH})`)
+        .call(d3.axisBottom(x).ticks(10).tickSize(-innerH).tickFormat(""))
+        .call(g => g.select(".domain").remove());
+
+      g.append("g")
+        .attr("class", "grid")
+        .call(d3.axisLeft(y).ticks(8).tickSize(-innerW).tickFormat(""))
+        .call(g => g.select(".domain").remove());
+
+      // Axes groups
+      g.append("g")
+        .attr("class", "axis")
+        .attr("transform", `translate(0,${innerH})`)
+        .call(xAxis);
+
+      g.append("g")
+        .attr("class", "axis")
+        .call(yAxis);
+
+      // Axis labels
+      g.append("text")
+        .attr("class", "label")
+        .attr("x", innerW / 2)
+        .attr("y", innerH + 44)
+        .attr("text-anchor", "middle")
+        .text("Year");
+
+      g.append("text")
+        .attr("class", "label")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -innerH / 2)
+        .attr("y", -52)
+        .attr("text-anchor", "middle")
+        .text("Plastic (Millions of Tons)");
+
+      // Line generator
+      const line = d3.line()
+        .x(d => x(d.date))
+        .y(d => y(d.mt))
+        .curve(d3.curveMonotoneX);
+
+      // Path
+      const path = g.append("path")
+        .datum(data)
+        .attr("class", "line")
+        .attr("d", line);
+
+      // Animate line draw
+      const length = path.node().getTotalLength();
+      path
+        .attr("stroke-dasharray", `${length} ${length}`)
+        .attr("stroke-dashoffset", length)
+        .transition()
+        .duration(1600*4)
+        .ease(d3.easeCubic)
+        .attr("stroke-dashoffset", 0);
+
+      // Dots
+      g.selectAll(".dot")
+        .data(data)
+        .enter()
+        .append("circle")
+        .attr("class", "dot")
+        .attr("cx", d => x(d.date))
+        .attr("cy", d => y(d.mt))
+        .attr("r", 0)
+        .attr("opacity", 0)
+        .transition()
+        .delay((d, i) => 200 + i * (1000 / Math.max(1, data.length - 1)))
+        .duration(400*5)
+        .attr("r", 3)
+        .attr("opacity", 1);
+
+      // Tooltip (simple)
+      const tooltip = d3.select("body").append("div")
+        .style("position", "fixed")
+        .style("pointer-events", "none")
+        .style("background", "rgba(0,0,0,0.75)")
+        .style("color", "#fff")
+        .style("padding", "6px 8px")
+        .style("border-radius", "4px")
+        .style("font", "12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, sans-serif")
+        .style("opacity", 0);
+
+      g.selectAll(".hot")
+        .data(data)
+        .enter()
+        .append("circle")
+        .attr("class", "hot")
+        .attr("cx", d => x(d.date))
+        .attr("cy", d => y(d.mt))
+        .attr("r", 12)
+        .attr("fill", "transparent")
+        .on("mousemove", (event, d) => {
+          tooltip
+            .style("opacity", 1)
+            .html(`${formatYear(d.date)}<br>${d.mt.toLocaleString()} Mt`)
+            .style("left", (event.clientX + 12) + "px")
+            .style("top", (event.clientY + 12) + "px");
+        })
+        .on("mouseleave", () => tooltip.style("opacity", 0));
+    })();
+  </script>
+</body>
+
+</html>
 
 </html>
