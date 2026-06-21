@@ -8,7 +8,7 @@
     body {
       width: 100%;
       height: 100%;
-      background: white;
+      background: #2f2b2a;
       margin: 0;
       overflow: hidden;
       font-family: "Helvetica";
@@ -39,8 +39,8 @@
     .sidebarButton {
       width: 100%;
       height: 50px;
-      background: rgb(241, 239, 227);
-      color: rgb(67, 70, 61);
+      background: rgb(67, 70, 61);
+      color: rgb(241, 236, 218);
       font-family: "Helvetica";
       font-size: 16px;
       cursor: pointer;
@@ -49,19 +49,19 @@
     }
 
     .sidebarButton.active {
-      color: rgb(241, 239, 227);
-      background: rgb(67, 70, 61);
+      color: rgb(241, 236, 218);
+      background: rgb(84, 91, 72);
     }
 
     .sidebarButton:hover {
-      background: rgb(207, 205, 193);
+      background: rgb(105, 111, 95);
     }
 
     .legend {
       width: 100%;
       height: fit-content;
-      color: rgb(67, 70, 61);
-      background: rgb(242, 242, 237);
+      color: rgb(241, 236, 218);
+      background: rgb(84, 91, 72);
       padding: 14px 24px;
       box-sizing: border-box;
       margin-top: 20px;
@@ -71,7 +71,7 @@
       font-family: "Helvetica";
       font-size: 20px;
       margin-bottom: 20px;
-      color: rgb(67, 70, 61);
+      color: rgb(241, 236, 218);
     }
 
     .legendColor {
@@ -90,7 +90,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      color: rgb(67, 70, 61);
+      color: rgb(241, 236, 218);
       font-family: "Helvetica";
       font-size: 12px;
     }
@@ -98,9 +98,9 @@
     .legendMismanagedColor {
       width: 14px;
       height: 14px;
-      background: rgb(139, 0, 0);
+      background: rgb(166, 79, 70);
       flex-shrink: 0;
-      border: 1px solid rgb(139, 0, 0);
+      border: 1px solid rgb(166, 79, 70);
     }
 
     .legendRecycledColor {
@@ -114,15 +114,15 @@
     .legendManagedColor {
       width: 14px;
       height: 14px;
-      background: rgb(175, 175, 175);
+      background: rgb(184, 179, 162);
       flex-shrink: 0;
-      border: 1px solid rgb(175, 175, 175);
+      border: 1px solid rgb(184, 179, 162);
     }
 
     .caption {
       width: 100%;
       height: fit-content;
-      color: rgb(67, 70, 61);
+      color: rgb(241, 236, 218);
       font-family: "Helvetica";
       font-size: 30px;
       text-align: center;
@@ -137,7 +137,7 @@
       width: 100%;
       height: fit-content;
       min-height: 80px;
-      color: rgb(67, 70, 61);
+      color: rgb(241, 236, 218);
       font-family: "Helvetica";
       font-size: 18px;
       text-align: center;
@@ -170,7 +170,11 @@
     .source {
       text-align: right;
       font-size: 0.9rem;
-      color: rgb(67, 70, 61);
+      color: rgb(184, 179, 162);
+    }
+
+    .source a {
+      color: rgb(241, 236, 218);
     }
   </style>
 </head>
@@ -265,8 +269,8 @@
     function squareColor({ type }) {
       switch (type) {
         case 'recycled': return 'rgb(36, 179, 250)';
-        case 'incinerated': case 'landfilled': return 'rgb(175, 175, 175)';
-        case 'mismanaged': return 'rgb(139, 0, 0)';
+        case 'incinerated': case 'landfilled': return 'rgb(184, 179, 162)';
+        case 'mismanaged': return 'rgb(166, 79, 70)';
       }
     }
 
