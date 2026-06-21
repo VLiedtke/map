@@ -49,8 +49,7 @@
     }
 
     .sidebarButton.active {
-      color: rgb(241, 236, 218);
-      background: rgb(84, 91, 72);
+      border: 2px solid white;
     }
 
     .sidebarButton:hover {
@@ -266,6 +265,16 @@
       .attr('viewBox', `0 0 ${margins.left + rowCount * squareSize + (rowCount - 1) * squaresGap + Math.floor(rowCount / 10) * 2 + margins.right} ${margins.top + rowCount * squareSize + (rowCount - 1) * squaresGap + Math.floor(rowCount / 10) * 2 + margins.bottom}`);
     const squareGroup = svg.append('g');
 
+    const tooltip = d3.select("body").append("div")
+      .style("position", "fixed")
+      .style("pointer-events", "none")
+      .style("background", "rgba(0,0,0,0.75)")
+      .style("color", "#fff")
+      .style("padding", "6px 8px")
+      .style("border-radius", "4px")
+      .style("font", "12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, sans-serif")
+      .style("opacity", 0);
+
     function squareColor({ type }) {
       switch (type) {
         case 'recycled': return 'rgb(36, 179, 250)';
@@ -347,16 +356,6 @@
             .remove();
         }
       );
-
-      const tooltip = d3.select("body").append("div")
-        .style("position", "fixed")
-        .style("pointer-events", "none")
-        .style("background", "rgba(0,0,0,0.75)")
-        .style("color", "#fff")
-        .style("padding", "6px 8px")
-        .style("border-radius", "4px")
-        .style("font", "12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, sans-serif")
-        .style("opacity", 0);
 
       const recycledSquares = squareGroup.selectAll('.square.recycled');
       const incineratedSquares = squareGroup.selectAll('.square.incinerated');
