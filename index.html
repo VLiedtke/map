@@ -72,12 +72,12 @@
 
     window.addEventListener('message', e => {
       if (e.data.scrollTo === undefined) return;
-      if (e.source.location.pathname === '/chart2.html') {
+      if (e.source === chart2.contentWindow) {
         const r = s2.getBoundingClientRect();
         const scrollable = r.height - innerHeight;
         const target = s2.offsetTop + e.data.scrollTo * scrollable;
         window.scrollTo({ top: target });
-      } else if (e.source.location.pathname === '/chart3.html') {
+      } else if (e.source === chart3.contentWindow) {
         const r = s3.getBoundingClientRect();
         const scrollable = r.height - innerHeight;
         const target = s3.offsetTop + e.data.scrollTo * scrollable;
