@@ -2,17 +2,412 @@
 <html>
 
 <head>
-    <meta charset="UTF-8">
-    <style>
-        body {
-            width: 100%;
-            height: 100%;
-            background: yellow;
-            margin: 0; overflow: hidden;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      background: white;
+      margin: 0;
+      overflow: hidden;
+      font-family: "Helvetica";
+    }
+
+    body {
+      display: flex;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding-top: 50px;
+      padding-left: 80px;
+      padding-right: 100px;
+      padding-bottom: 20px;
+    }
+
+    .sidebar {
+      width: 300px;
+      padding-top: 70px;
+      padding-left: 50px;
+      padding-right: 2px;
+      overflow-y: auto;
+    }
+
+    .sidebarButton {
+      width: 100%;
+      height: 50px;
+      background: rgb(241, 239, 227);
+      color: rgb(67, 70, 61);
+      font-family: "Helvetica";
+      font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      border: none;
+    }
+
+    .sidebarButton.active {
+      color: rgb(241, 239, 227);
+      background: rgb(67, 70, 61);
+    }
+
+    .sidebarButton:hover {
+      background: rgb(207, 205, 193);
+    }
+
+    .legend {
+      width: 100%;
+      height: fit-content;
+      color: rgb(67, 70, 61);
+      background: rgb(242, 242, 237);
+      padding: 14px 24px;
+      box-sizing: border-box;
+      margin-top: 20px;
+    }
+
+    .legendTitle {
+      font-family: "Helvetica";
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: rgb(67, 70, 61);
+    }
+
+    .legendColor {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .legenItems {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .legendItem {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgb(67, 70, 61);
+      font-family: "Helvetica";
+      font-size: 12px;
+    }
+
+    .legendMismanagedColor {
+      width: 14px;
+      height: 14px;
+      background: rgb(139, 0, 0);
+      flex-shrink: 0;
+      border: 1px solid rgb(139, 0, 0);
+    }
+
+    .legendRecycledColor {
+      width: 14px;
+      height: 14px;
+      background: rgb(36, 179, 250);
+      flex-shrink: 0;
+      border: 1px solid rgb(36, 179, 250);
+    }
+
+    .legendManagedColor {
+      width: 14px;
+      height: 14px;
+      background: rgb(175, 175, 175);
+      flex-shrink: 0;
+      border: 1px solid rgb(175, 175, 175);
+    }
+
+    .caption {
+      width: 100%;
+      height: fit-content;
+      color: rgb(67, 70, 61);
+      font-family: "Helvetica";
+      font-size: 30px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 0px solid gray;
+      padding-top: 10px;
+    }
+
+    .subcaption {
+      width: 100%;
+      height: fit-content;
+      min-height: 80px;
+      color: rgb(67, 70, 61);
+      font-family: "Helvetica";
+      font-size: 18px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 0px solid gray;
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+
+    .container {
+      flex: 1;
+      width: 100%;
+      min-height: 0;
+      border: 0px solid gray;
+    }
+
+    .container svg {
+      width: 100%;
+      max-height: 100%;
+      height: fit-content;
+      display: block;
+    }
+
+    .square {
+      padding: 1px;
+    }
+
+    .source {
+      text-align: right;
+      font-size: 0.9rem;
+      color: rgb(67, 70, 61);
+    }
+  </style>
 </head>
 
-<body></body>
+<body>
+  <div class="sidebar">
+    <button class="sidebarButton baseline">Baseline by 2060</button>
+    <button class="sidebarButton demand">+ Restrain demand</button>
+    <button class="sidebarButton recycling">+ Enchance recyling</button>
+    <button class="sidebarButton leakage">+ Close leakage pathways</button>
+    <div class="legend">
+      <div class="legendTitle">Legend</div>
+      <div class="legenItems">
+        <div class="legendItem">
+          <div class="legendMismanagedColor"></div>mismanaged plastic waste
+        </div>
+        <div class="legendItem">
+          <div class="legendRecycledColor"></div>recycled plastic waste
+        </div>
+        <div class="legendItem">
+          <div class="legendManagedColor"></div>other managed plastic waste
+        </div>
+        <div class="legendItem">
+          One square is a million tonnes
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  <div class="main">
+    <div class="caption">The problem is expected to get worse</div>
+    <div class="subcaption">
+      The OECD projects that the global amount of plastic waste will increase to 1014 million tonnes by 2060 up from 353
+      million tonnes in 2019. To improve the situation they have devised three global policy recommendations "Restrain
+      demand",
+      "Enchance recycling" and "Close leakage pathways".
+    </div>
+    <div id="container" class="container"></div>
+    <div class="source">Source: OECD (2022) - Global Plastics Outlook - The Global Ambition policy scenario (<a
+        href="https://doi.org/10.1787/aa1edf33-en">https://doi.org/10.1787/aa1edf33-en</a>)</div>
+  </div>
+  <script <script type="module">
+    import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7/+esm';
+    const captions = [
+      'The problem is expected to get worse',
+      '"Restrain demand" could have a large impact on total plastic waste',
+      '"Enchance Recycling" will not impact total plastic waste amount',
+      '"Close leakage pathways" could eliminate remaining mismanaged plastic waste',
+    ];
+    const subcaptions = [
+      'The OECD projects that the global amount of plastic waste will increase to 1014 million tonnes by 2060 up from 353 million tonnes in 2019. To improve the situation they have devised three global policy recommendations "Restrain demand", "Enchance recycling" and "Close leakage pathways".',
+      'By introducing a tax on plastic products with an increased amount taxed on packaging plastic and pushing longer lived products this scenario is projected to have a big impact on total waste produced.',
+      'Setting recycling targets for countries is not expected to have a big impact on overall plastic waste amounts but it could remove a large chunk of landfilled waste and give it another life instead.',
+      'The previous policy scenarios are not enough to eliminate mismanaged plastic waste. To achieve this goal improvements to waste and litter collection and sanitary landfills would be necessary.',
+    ];
+    const caption = document.querySelector('.caption');
+    const subcaption = document.querySelector('.subcaption');
+    const buttons = document.querySelectorAll('.sidebarButton');
+    const container = d3.select('.container');
+    const squareSize = 10;
+    const squaresGap = 2;
+    const margins = {
+      top: 10,
+      right: 25,
+      bottom: 10,
+      left: 25,
+    };
+
+    let raw;
+    try {
+      raw = await d3.csv('resources3/plastic-waste-global-ambition-scenarios.csv');
+    } catch (err) {
+      console.warn("Failed to load custom CSV.", err);
+    }
+    const mapScenario = ({ recycled, incinerated, landfilled, mismanaged }) =>
+      [{ type: 'recycled', count: recycled }, { type: 'incinerated', count: incinerated }, { type: 'landfilled', count: landfilled }, { type: 'mismanaged', count: mismanaged }]
+        .flatMap(({ type, count }) => Array.from({ length: count }, () => ({ type, count })));
+    const current = mapScenario(raw.find(({ scenario }) => scenario === 'current'));
+    const baseline = mapScenario(raw.find(({ scenario }) => scenario === 'baseline'));
+    const demand = mapScenario(raw.find(({ scenario }) => scenario === 'demand'));
+    const recycling = mapScenario(raw.find(({ scenario }) => scenario === 'recycling'));
+    const leakage = mapScenario(raw.find(({ scenario }) => scenario === 'leakage'));
+    let data = [current, baseline, demand, recycling, leakage];
+
+    const rowCount = Math.ceil(Math.sqrt(Math.max(...data.map(data => data.length))) / 10) * 10;
+    const svg = container.append('svg')
+      .attr('width', '100%')
+      .attr('height', '100%')
+      .attr('viewBox', `0 0 ${margins.left + rowCount * squareSize + (rowCount - 1) * squaresGap + Math.floor(rowCount / 10) * 2 + margins.right} ${margins.top + rowCount * squareSize + (rowCount - 1) * squaresGap + Math.floor(rowCount / 10) * 2 + margins.bottom}`);
+    const squareGroup = svg.append('g');
+
+    function squareColor({ type }) {
+      switch (type) {
+        case 'recycled': return 'rgb(36, 179, 250)';
+        case 'incinerated': case 'landfilled': return 'rgb(175, 175, 175)';
+        case 'mismanaged': return 'rgb(139, 0, 0)';
+      }
+    }
+
+
+    function drawGraph(i) {
+      let prevData = squareGroup
+        .selectAll('.square')
+        .data();
+      const squares = squareGroup
+        .selectAll('.square')
+        .data(data[i]);
+
+      squares.join(
+        enter => {
+          const newSquare = enter
+            .append('rect')
+            .attr('class', d => `square ${d.type}`)
+            .attr('width', squareSize)
+            .attr('height', squareSize)
+            .attr('x', (d, i) => margins.left + (i % rowCount) * (squareSize + squaresGap) + Math.floor((i % rowCount) / 10) * 2)
+            .attr('y', (d, i) => margins.top + Math.floor(i / rowCount) * (squareSize + squaresGap) + Math.floor(Math.floor(i / rowCount) / 10) * 2)
+            .attr('fill', squareColor)
+            .attr('opacity', 0)
+            .attr('stroke', 'rgba(0, 0, 0, 0.4)')
+            .attr('stroke-width', 0);
+          newSquare
+            .transition('enter')
+            .ease(d3.easeCubicOut)
+            .delay((_, i, data) => i * 1000 / data.length)
+            .attr('opacity', 1);
+          newSquare
+            .transition('enter2')
+            .ease(d3.easeCubicOut)
+            .delay((_, i, data) => i * 1000 / data.length)
+            .duration(100)
+            .attr('stroke-width', 0.5)
+            .transition()
+            .duration(100)
+            .ease(d3.easeCubicOut)
+            .attr('stroke-width', 0);
+        },
+        update => {
+          const square = update
+            .attr('class', d => `square ${d.type}`)
+            .attr('x', (d, i) => margins.left + (i % rowCount) * (squareSize + squaresGap) + Math.floor((i % rowCount) / 10) * 2)
+            .attr('y', (d, i) => margins.top + Math.floor(i / rowCount) * (squareSize + squaresGap) + Math.floor(Math.floor(i / rowCount) / 10) * 2)
+          square
+            .transition('update')
+            .ease(d3.easeCubicOut)
+            .duration(1000)
+            .delay((_, i, data) => prevData.length <= data.length ? (i * 1000 / data.length) : ((prevData.length - i) * 1000 / prevData.length))
+            .attr('fill', squareColor);
+          square
+            .transition('update2')
+            .ease(d3.easeCubicOut)
+            .delay((_, i, data) => prevData.length <= data.length ? (i * 1000 / data.length) : ((prevData.length - i) * 1000 / prevData.length))
+            .duration(100)
+            .attr('stroke-width', 0.5)
+            .transition()
+            .duration(100)
+            .ease(d3.easeCubicOut)
+            .attr('stroke-width', 0);
+        },
+        exit => {
+          exit
+            .interrupt('enter')
+            .interrupt('update')
+            .interrupt('enter2')
+            .interrupt('update2')
+            .transition('exit')
+            .attr('opacity', 0)
+            .ease(d3.easeCubicOut)
+            .delay((_, i, all) => (all.length - i) * 1000 / all.length)
+            .remove();
+        }
+      );
+
+      const tooltip = d3.select("body").append("div")
+        .style("position", "fixed")
+        .style("pointer-events", "none")
+        .style("background", "rgba(0,0,0,0.75)")
+        .style("color", "#fff")
+        .style("padding", "6px 8px")
+        .style("border-radius", "4px")
+        .style("font", "12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, sans-serif")
+        .style("opacity", 0);
+
+      const recycledSquares = squareGroup.selectAll('.square.recycled');
+      const incineratedSquares = squareGroup.selectAll('.square.incinerated');
+      const landfilledSquares = squareGroup.selectAll('.square.landfilled');
+      const mismanagedSquares = squareGroup.selectAll('.square.mismanaged');
+
+      const squareGroups = [{ group: recycledSquares, opacity: 0.2 }, { group: incineratedSquares, opacity: 0.5 }, { group: landfilledSquares, opacity: 0.5 }, { group: mismanagedSquares, opacity: 0.2 }];
+
+      squareGroups.forEach(({ group, opacity }) => {
+        group.on('mouseenter', (event, d) => {
+          group.transition('hover').attr('opacity', 1).duration(200);
+          squareGroups.filter(s => s.group !== group)
+            .forEach(squares => squares.group.transition('hover').duration(200).attr('opacity', squares.opacity));
+          tooltip
+            .style("opacity", 1)
+            .html(`${d.type} (${d.count} Mt)`)
+            .style("left", (event.clientX + 12) + "px")
+            .style("top", (event.clientY + 12) + "px");
+        });
+        group.on('mouseleave', () => {
+          squareGroups.filter(g => g !== group)
+            .forEach(squares => squares.group.transition('hover').duration(200).attr('opacity', 1));
+          tooltip
+            .style("opacity", 0)
+        });
+      });
+    }
+
+    function setActive(i) {
+      buttons.forEach((b, j) => j <= i ? b.classList.add('active') : b.classList.remove('active'));
+      if (i >= 0) {
+        caption.textContent = captions[i];
+        subcaption.textContent = subcaptions[i];
+      }
+      drawGraph(i + 1);
+    }
+
+    drawGraph(0, true);
+
+    let prevI = -2;
+    window.addEventListener('message', e => {
+      if (e.data.progress === undefined) return;
+      const i = e.data.progress < 0 ? -1 : Math.min(3, Math.floor(e.data.progress * 4 + 0.01));
+      if (prevI !== i) {
+        setActive(i);
+      }
+      prevI = i;
+    });
+
+    buttons.forEach((btn, i) => {
+      btn.addEventListener('click', () => {
+        window.parent.postMessage({ scrollTo: i / 3 }, '*');
+      });
+    });
+  </script>
+</body>
 
 </html>

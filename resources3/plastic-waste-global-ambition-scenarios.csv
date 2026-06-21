@@ -1,0 +1,6 @@
+scenario,recycled,incinerated,landfilled,mismanaged
+current,33,67,174,79
+baseline,176,179,507,153
+demand,125,129,356,103
+recycling,400,133,99,47
+leakage,400,134,140,6

@@ -4,7 +4,6 @@
 <head>
   <meta charset="UTF-8">
   <style>
-
     body {
       margin: 0;
     }
@@ -15,16 +14,15 @@
     }
 
     iframe {
-      width: 100vw;
-      min-width: 1000px;
-      height: 100vh;
+      width: 100dvw;
+      height: 100dvh;
       border: none;
       display: block;
       margin: 0px;
     }
 
     .stickyOuter {
-      height: 300vh;
+      height: calc(100dvh * var(--pages));
     }
 
     .sticky {
@@ -41,7 +39,7 @@
 
   <div class="separator"></div>
 
-  <div class="stickyOuter">
+  <div class="stickyOuter" style="--pages: 3">
     <div class="sticky">
       <iframe src="chart2.html"></iframe>
     </div>
@@ -49,23 +47,40 @@
 
   <div class="separator"></div>
 
-  <iframe src="chart3.html"></iframe>
+  <div class="stickyOuter" style="--pages: 4">
+    <div class="sticky">
+      <iframe src="chart3.html"></iframe>
+    </div>
+  </div>
 
   <script>
-    const s = document.querySelector('.stickyOuter');
+    const s2 = document.querySelector('.stickyOuter:has(iframe[src="chart2.html"])');
     const chart2 = document.querySelector('iframe[src="chart2.html"]');
+    const s3 = document.querySelector('.stickyOuter:has(iframe[src="chart3.html"])');
+    const chart3 = document.querySelector('iframe[src="chart3.html"]');
+
     window.addEventListener('scroll', () => {
-      const r = s.getBoundingClientRect();
-      const progress = Math.max(0, Math.min(1, -r.top / (r.height - innerHeight)));
-      chart2.contentWindow.postMessage({ progress }, '*');
+      const r2 = s2.getBoundingClientRect();
+      const progress2 = Math.max(0, Math.min(1, -r2.top / (r2.height - innerHeight)));
+      chart2.contentWindow.postMessage({ progress: progress2 }, '*');
+      const r3 = s3.getBoundingClientRect();
+      const progress3 = Math.min(1, -r3.top / (r3.height - innerHeight));
+      chart3.contentWindow.postMessage({ progress: progress3 }, '*');
     }, { passive: true });
 
     window.addEventListener('message', e => {
       if (e.data.scrollTo === undefined) return;
-      const r = s.getBoundingClientRect();
-      const scrollable = r.height - innerHeight;
-      const target = s.offsetTop + e.data.scrollTo * scrollable;
-      window.scrollTo({ top: target });
+      if (e.source.location.pathname === '/chart2.html') {
+        const r = s2.getBoundingClientRect();
+        const scrollable = r.height - innerHeight;
+        const target = s2.offsetTop + e.data.scrollTo * scrollable;
+        window.scrollTo({ top: target });
+      } else if (e.source.location.pathname === '/chart3.html') {
+        const r = s3.getBoundingClientRect();
+        const scrollable = r.height - innerHeight;
+        const target = s3.offsetTop + e.data.scrollTo * scrollable;
+        window.scrollTo({ top: target });
+      }
     });
   </script>
 </body>
